@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Haro by avoidwork</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Haro</h1>
+      <h2 class="project-tagline">Harō is modern DataStore that can be wired to an API</h2>
+      <a href="https://github.com/avoidwork/haro" class="btn">View on GitHub</a>
+      <a href="https://github.com/avoidwork/haro/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/avoidwork/haro/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="haro" class="anchor" href="#haro" aria-hidden="true"><span class="octicon octicon-link"></span></a>haro</h1>
+
+<p>Harō is modern DataStore that can be wired to an API, &amp; provides a simple feedback loop with <code>Promises</code>. It is a
+partially persistent data structure, by maintaining version sets of records in <code>versions</code>.</p>
+
+<p><a href="http://travis-ci.org/avoidwork/haro"><img src="https://secure.travis-ci.org/avoidwork/haro.svg" alt="build status"></a></p>
+
+<h3>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h3>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0</span>
+store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [$uuid, {abc: true}];</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 1</span>
+  <span class="pl-k">return</span> store.set(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">false</span>});
+}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [$uuid, {abc: false}];</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.versions.get(arg[<span class="pl-c1">0</span>]).<span class="pl-c1">size</span>); <span class="pl-c">// 1;</span>
+  <span class="pl-k">return</span> store.del(arg[<span class="pl-c1">0</span>])
+}).then(<span class="pl-k">function</span> () {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0;</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
+<h3>
+<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
+
+<p><strong>config</strong>
+<em>Object</em></p>
+
+<p>Default settings for <code>fetch()</code>. You must manually enable <code>CORS</code> mode!</p>
+
+<p><strong>key</strong>
+<em>String</em></p>
+
+<p>Optional <code>Object</code> key to utilize as <code>Map</code> key, defaults to a version 4 <code>UUID</code> if not specified, or found</p>
+
+<p><strong>source</strong>
+<em>String</em></p>
+
+<p>Optional <code>Object</code> key to retrieve data from API responses, see <code>setUri()</code></p>
+
+<h3>
+<a id="properties" class="anchor" href="#properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>Properties</h3>
+
+<p><strong>data</strong>
+<em>Map</em></p>
+
+<p><code>Map</code> of records, updated by <code>del()</code> &amp; <code>set()</code></p>
+
+<p><strong>total</strong>
+<em>Number</em></p>
+
+<p>Total records in the DataStore</p>
+
+<p><strong>uri</strong>
+<em>String</em></p>
+
+<p>URI of an API the DataStore is wired to, in a feedback loop (do not modify, use <code>setUri()</code>)</p>
+
+<p><strong>versions</strong>
+<em>Map</em></p>
+
+<p><code>Map</code> of <code>Sets</code> of records, updated by <code>set()</code></p>
+
+<h3>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h3>
+
+<p><strong>batch( array, type )</strong>
+<em>Promise</em></p>
+
+<p>The first argument must be an <code>Array</code>, and the second argument must be <code>del</code> or <code>set</code>.</p>
+
+<p><strong>clear()</strong>
+<em>self</em></p>
+
+<p>Removes all key/value pairs from the DataStore.</p>
+
+<p><strong>del( key )</strong>
+<em>Promise</em></p>
+
+<p>Deletes the record.</p>
+
+<p><strong>entries()</strong>
+<em>MapIterator</em></p>
+
+<p>Returns returns a new <code>Iterator</code> object that contains an array of <code>[key, value]</code> for each element in the <code>Map</code> object in insertion order.</p>
+
+<p><strong>forEach(callbackFn[, thisArg])</strong>
+<em>Undefined</em></p>
+
+<p>Calls <code>callbackFn</code> once for each key-value pair present in the <code>Map</code> object, in insertion order. If a <code>thisArg</code> parameter is provided to <code>forEach</code>, it will be used as the this value for each callback.</p>
+
+<p><strong>get( key )</strong>
+<em>Tuple</em></p>
+
+<p>Gets the record as a double <code>Tuple</code> with the shape <code>[key, value]</code>.</p>
+
+<p><strong>keys()</strong>
+<em>MapIterator</em></p>
+
+<p>Returns a new <code>Iterator</code> object that contains the keys for each element in the <code>Map</code> object in insertion order.`</p>
+
+<p><strong>limit( start, offset )</strong>
+<em>Tuple</em></p>
+
+<p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for the corresponding range of records.</p>
+
+<p><strong>request( input, config )</strong>
+<em>Promise</em></p>
+
+<p>Returns a <code>Promise</code> for a <code>fetch()</code> with a coerced response body (JSON or text) as the <code>resolve()</code> argument.</p>
+
+<p><strong>set( key, data, batch=false )</strong>
+<em>Promise</em></p>
+
+<p>Returns a <code>Promise</code> for setting/amending a record in the DataStore, if <code>key</code> is <code>false</code> a version 4 <code>UUID</code> will be generated.</p>
+
+<p><strong>setUri( uri )</strong>
+<em>Promise</em></p>
+
+<p>Returns a <code>Promise</code> for wiring the DataStore to an API, with the retrieved record set as the <code>resolve()</code> argument.</p>
+
+<p><strong>values()</strong>
+<em>MapIterator</em></p>
+
+<p>Returns a new <code>Iterator</code> object that contains the values for each element in the <code>Map</code> object in insertion order.</p>
+
+<h3>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h3>
+
+<ul>
+<li><code>Map</code></li>
+<li><code>Promise</code></li>
+<li><code>Set</code></li>
+<li><code>fetch()</code></li>
+<li>
+<code>tuple()</code> see <a href="https://github.com/avoidwork/tiny-tuple">tiny-tuple</a> for loading in a browser</li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Copyright (c) 2015 Jason Mulligan
+Licensed under the BSD-3 license</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/avoidwork/haro">Haro</a> is maintained by <a href="https://github.com/avoidwork">avoidwork</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
