@@ -22,7 +22,7 @@
       <h1>
 <a id="haro" class="anchor" href="#haro" aria-hidden="true"><span class="octicon octicon-link"></span></a>haro</h1>
 
-<p>Harō is modern DataStore that can be wired to an API, &amp; provides a simple feedback loop with <code>Promises</code>. It is a
+<p>Harō is a modern immutable DataStore that can be wired to an API. It is a
 partially persistent data structure, by maintaining version sets of records in <code>versions</code>.</p>
 
 <p><a href="http://travis-ci.org/avoidwork/haro"><img src="https://secure.travis-ci.org/avoidwork/haro.svg" alt="build status"></a></p>
@@ -30,7 +30,7 @@ partially persistent data structure, by maintaining version sets of records in <
 <h3>
 <a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h3>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">"</span>abc<span class="pl-pds">"</span></span>]});
 
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0</span>
 store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
@@ -45,7 +45,9 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0;</span>
 }).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
-});</pre></div>
+});
+
+store.<span class="pl-c1">find</span>({abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}); <span class="pl-c">// [[$uuid, {abc: true}]]</span></pre></div>
 
 <h3>
 <a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
@@ -53,7 +55,12 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <p><strong>config</strong>
 <em>Object</em></p>
 
-<p>Default settings for <code>fetch()</code>. You must manually enable <code>CORS</code> mode!</p>
+<p>Default settings for <code>fetch()</code>.</p>
+
+<p><strong>index</strong>
+<em>Array</em></p>
+
+<p>Array of values to index</p>
 
 <p><strong>key</strong>
 <em>String</em></p>
@@ -72,6 +79,16 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <em>Map</em></p>
 
 <p><code>Map</code> of records, updated by <code>del()</code> &amp; <code>set()</code></p>
+
+<p><strong>indexes</strong>
+<em>Map</em></p>
+
+<p>Map of indexes, which are Sets containing Map keys.</p>
+
+<p><strong>registry</strong>
+<em>Array</em></p>
+
+<p>Array representing the order of <strong>data</strong></p>
 
 <p><strong>total</strong>
 <em>Number</em></p>
@@ -116,6 +133,11 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for records which returned <code>true</code> to <code>callbackFn(value, key)</code>.</p>
 
+<p><strong>find( where )</strong>
+<em>Tuple</em></p>
+
+<p>Returns a <code>Tuple</code> of double <code>Tuples</code> with found by indexed values matching the <code>where</code>.</p>
+
 <p><strong>forEach( callbackFn[, thisArg] )</strong>
 <em>Undefined</em></p>
 
@@ -141,6 +163,11 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records with the returned <code>value</code> of <code>callbackFn(value, key)</code>.</p>
 
+<p><strong>reindex( [index] )</strong>
+<em>Haro</em></p>
+
+<p>Re-indexes the DataStore, to be called if changing the value of <code>index</code>.</p>
+
 <p><strong>request( input, config )</strong>
 <em>Promise</em></p>
 
@@ -155,6 +182,21 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for wiring the DataStore to an API, with the retrieved record set as the <code>resolve()</code> argument.</p>
+
+<p><strong>sort( callbackFn )</strong>
+<em>Array</em></p>
+
+<p>Returns an Array of the DataStore, sorted by <code>callbackFn</code>.</p>
+
+<p><strong>sortBy( index )</strong>
+<em>Array</em></p>
+
+<p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records sorted by an index.</p>
+
+<p><strong>toArray()</strong>
+<em>Array</em></p>
+
+<p>Returns an Array of the DataStore.</p>
 
 <p><strong>values()</strong>
 <em>MapIterator</em></p>
