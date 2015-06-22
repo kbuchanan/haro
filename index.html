@@ -173,6 +173,12 @@ store.<span class="pl-c1">find</span>({abc<span class="pl-k">:</span> <span clas
 
 <p>Returns a <code>Promise</code> for a <code>fetch()</code> with a double <code>Tuple</code> [<code>body</code>, <code>status</code>] as the <code>resolve()</code> argument.</p>
 
+<p><strong>search( arg, index )</strong>
+<em>Tuple</em></p>
+
+<p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records found matching <code>arg</code>.
+If <code>arg</code> is a <code>Function</code> a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> as <code>true</code>, else the value must be an equality match. </p>
+
 <p><strong>set( key, data, batch=false )</strong>
 <em>Promise</em></p>
 
@@ -189,7 +195,7 @@ store.<span class="pl-c1">find</span>({abc<span class="pl-k">:</span> <span clas
 <p>Returns an Array of the DataStore, sorted by <code>callbackFn</code>.</p>
 
 <p><strong>sortBy( index )</strong>
-<em>Array</em></p>
+<em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records sorted by an index.</p>
 
