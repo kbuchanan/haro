@@ -22,17 +22,28 @@
       <h1>
 <a id="haro" class="anchor" href="#haro" aria-hidden="true"><span class="octicon octicon-link"></span></a>haro</h1>
 
-<p>Harō is a modern immutable DataStore that can be wired to an API. It is a
-partially persistent data structure, by maintaining version sets of records in <code>versions</code>.</p>
-
 <p><a href="http://travis-ci.org/avoidwork/haro"><img src="https://secure.travis-ci.org/avoidwork/haro.svg" alt="build status"></a></p>
 
-<h3>
-<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h3>
+<p>Harō is a modern immutable DataStore built with ES6 features, which can be wired to an API for a complete feedback loop.
+It is un-opinionated, and offers a plug'n'play solution to modeling, searching, &amp; managing data on the client, or server 
+(in RAM). It is a <a href="https://en.wikipedia.org/wiki/Persistent_data_structure">partially persistent data structure</a>, by maintaining version sets of records in <code>versions</code> (<a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">MVCC</a>).</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">"</span>abc<span class="pl-pds">"</span></span>]});
+<p>Synchronous commands return instantly (<code>Array</code> or <code>Tuple</code>), while asynchronous commands return  <code>Promises</code> which will
+resolve or reject in the future. This allows you to build complex applications without worrying about managing async code.</p>
+
+<p>Harō indexes have the following structure <code>Map (field/property) &gt; Map (value) &gt; Set (PKs)</code> which allow for quick &amp; easy searching, as well as inspection.
+Indexes can be managed independently of <code>del()</code> &amp; <code>set()</code> operations, for example you can lazily create new indexes via <code>reindex(field)</code>, or <code>sortBy(field)</code>.</p>
+
+<h3>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
+
+<h4>
+<a id="piping-promises" class="anchor" href="#piping-promises" aria-hidden="true"><span class="octicon octicon-link"></span></a>Piping Promises</h4>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
 
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0</span>
+
 store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [$uuid, {abc: true}];</span>
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 1</span>
@@ -45,9 +56,38 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0;</span>
 }).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
-});
+});</pre></div>
 
-store.<span class="pl-c1">find</span>({abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}); <span class="pl-c">// [[$uuid, {abc: true}]]</span></pre></div>
+<h4>
+<a id="indexes--searching" class="anchor" href="#indexes--searching" aria-hidden="true"><span class="octicon octicon-link"></span></a>Indexes &amp; Searching</h4>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+    data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(records[<span class="pl-c1">0</span>]); <span class="pl-c">// [$uuid, {name: 'John Doe', age: 30}]</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 2</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">find</span>({age<span class="pl-k">:</span> <span class="pl-c1">28</span>})); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">search</span>(<span class="pl-sr"><span class="pl-pds">/</span><span class="pl-k">^</span>ja<span class="pl-pds">/</span>i</span>, <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">search</span>(<span class="pl-k">function</span> (<span class="pl-smi">age</span>) { <span class="pl-k">return</span> age <span class="pl-k">&lt;</span> <span class="pl-c1">30</span>; }, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
+<h4>
+<a id="mvcc-versioning" class="anchor" href="#mvcc-versioning" aria-hidden="true"><span class="octicon octicon-link"></span></a>MVCC versioning</h4>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-k">return</span> store.set(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">false</span>});
+}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-k">return</span> store.set(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>});
+}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  store.versions.get(arg[<span class="pl-c1">0</span>]).forEach(<span class="pl-k">function</span> (<span class="pl-smi">i</span>) { <span class="pl-en">console</span><span class="pl-c1">.log</span>(i[<span class="pl-c1">0</span>]); }); <span class="pl-c">// {abc: true}, {abc: false}</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
 
 <h3>
 <a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
@@ -71,6 +111,11 @@ store.<span class="pl-c1">find</span>({abc<span class="pl-k">:</span> <span clas
 <em>String</em></p>
 
 <p>Optional <code>Object</code> key to retrieve data from API responses, see <code>setUri()</code></p>
+
+<p><strong>versioning</strong>
+<em>Boolean</em></p>
+
+<p>Enable/disable MVCC style versioning of records, default is <code>true</code>. Versions are stored in <code>Sets</code> for easy iteration.</p>
 
 <h3>
 <a id="properties" class="anchor" href="#properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>Properties</h3>
