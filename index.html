@@ -35,6 +35,15 @@ resolve or reject in the future. This allows you to build complex applications w
 Indexes can be managed independently of <code>del()</code> &amp; <code>set()</code> operations, for example you can lazily create new indexes via <code>reindex(field)</code>, or <code>sortBy(field)</code>.</p>
 
 <h3>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use</h3>
+
+<p>Harō takes two optional arguments, the first is an <code>Array</code> of records to set asynchronously, &amp; the second is a configuration descriptor.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> storeDefaults <span class="pl-k">=</span> haro();
+<span class="pl-k">var</span> storeRecords <span class="pl-k">=</span> haro([{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}]);
+<span class="pl-k">var</span> storeCustom <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});</pre></div>
+
+<h3>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
 
 <h4>
@@ -90,6 +99,30 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 });</pre></div>
 
 <h3>
+<a id="benchmarked" class="anchor" href="#benchmarked" aria-hidden="true"><span class="octicon octicon-link"></span></a>Benchmarked</h3>
+
+<p>A benchmark is included in the repository, and is useful for gauging how haro will perform on different hardware, &amp; software.
+Please consider that <code>batch()</code>, &amp; <code>set()</code> use <code>Promises</code> and incur time as a cost. The following results are from an Apple
+MacBook Air (Early 2014) / 8GB RAM / 512GB SSD / OS X Yosemite:</p>
+
+<pre><code>time to load data: 595.13794ms
+datastore record count: 15000
+name indexes: 15000
+testing time to 'find()' a record (first one is cold):
+0.333202ms
+0.15953ms
+0.091702ms
+0.091607ms
+0.077321ms
+testing time to 'search(regex, index)' for a record (first one is cold):
+2.22693ms
+1.339148ms
+1.59494ms
+1.28051ms
+1.191318ms
+</code></pre>
+
+<h3>
 <a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
 
 <p><strong>config</strong>
@@ -97,25 +130,51 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 
 <p>Default settings for <code>fetch()</code>.</p>
 
+<p>Example of specifying a bearer token authorization header:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+  config<span class="pl-k">:</span> {
+    headers<span class="pl-k">:</span> {
+      authorization<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Bearer abcdef<span class="pl-pds">'</span></span>
+    }
+  });</pre></div>
+
 <p><strong>index</strong>
 <em>Array</em></p>
 
-<p>Array of values to index</p>
+<p>Array of values to index. Composite indexes are supported, by using the default delimiter (<code>this.delimiter</code>).
+Non-matches within composites result in blank values.</p>
+
+<p>Example of fields/properties to index:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>field1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>field2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>field1|field2|field3<span class="pl-pds">'</span></span>]);</pre></div>
 
 <p><strong>key</strong>
 <em>String</em></p>
 
-<p>Optional <code>Object</code> key to utilize as <code>Map</code> key, defaults to a version 4 <code>UUID</code> if not specified, or found</p>
+<p>Optional <code>Object</code> key to utilize as <code>Map</code> key, defaults to a version 4 <code>UUID</code> if not specified, or found.</p>
+
+<p>Example of specifying the primary key:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>field<span class="pl-pds">'</span></span>});</pre></div>
 
 <p><strong>source</strong>
 <em>String</em></p>
 
-<p>Optional <code>Object</code> key to retrieve data from API responses, see <code>setUri()</code></p>
+<p>Optional <code>Object</code> key to retrieve data from API responses, see <code>setUri()</code>.</p>
+
+<p>Example of specifying the source of data:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {source<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>data<span class="pl-pds">'</span></span>});</pre></div>
 
 <p><strong>versioning</strong>
 <em>Boolean</em></p>
 
 <p>Enable/disable MVCC style versioning of records, default is <code>true</code>. Versions are stored in <code>Sets</code> for easy iteration.</p>
+
+<p>Example of disabling versioning:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {versioning<span class="pl-k">:</span> <span class="pl-c1">false</span>});</pre></div>
 
 <h3>
 <a id="properties" class="anchor" href="#properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>Properties</h3>
@@ -123,7 +182,7 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <p><strong>data</strong>
 <em>Map</em></p>
 
-<p><code>Map</code> of records, updated by <code>del()</code> &amp; <code>set()</code></p>
+<p><code>Map</code> of records, updated by <code>del()</code> &amp; <code>set()</code>.</p>
 
 <p><strong>indexes</strong>
 <em>Map</em></p>
@@ -133,22 +192,22 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <p><strong>registry</strong>
 <em>Array</em></p>
 
-<p>Array representing the order of <strong>data</strong></p>
+<p>Array representing the order of <code>this.data</code>.</p>
 
 <p><strong>total</strong>
 <em>Number</em></p>
 
-<p>Total records in the DataStore</p>
+<p>Total records in the DataStore.</p>
 
 <p><strong>uri</strong>
 <em>String</em></p>
 
-<p>URI of an API the DataStore is wired to, in a feedback loop (do not modify, use <code>setUri()</code>)</p>
+<p>API collection URI the DataStore is wired to, in a feedback loop (do not modify, use <code>setUri()</code>). Setting the value creates an implicit relationship with records, e.g. setting <code>/users</code> would an implicit URI structure of <code>/users/{key}</code></p>
 
 <p><strong>versions</strong>
 <em>Map</em></p>
 
-<p><code>Map</code> of <code>Sets</code> of records, updated by <code>set()</code></p>
+<p><code>Map</code> of <code>Sets</code> of records, updated by <code>set()</code>.</p>
 
 <h3>
 <a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h3>
@@ -158,101 +217,327 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 
 <p>The first argument must be an <code>Array</code>, and the second argument must be <code>del</code> or <code>set</code>.</p>
 
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> haro <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>),
+    store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]}),
+    i <span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">1</span>,
+    nth <span class="pl-k">=</span> <span class="pl-c1">100</span>,
+    data <span class="pl-k">=</span> [];
+
+<span class="pl-k">while</span> (<span class="pl-k">++</span>i <span class="pl-k">&lt;</span> nth) {
+  data.<span class="pl-c1">push</span>({id<span class="pl-k">:</span> i, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span> <span class="pl-k">+</span> i});
+}
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span>(<span class="pl-smi">records</span>) {
+  <span class="pl-c">// records is a Tuple of Tuples</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack);
+});</pre></div>
+
 <p><strong>clear()</strong>
 <em>self</em></p>
 
 <p>Removes all key/value pairs from the DataStore.</p>
+
+<p>Example of clearing a DataStore:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+store.<span class="pl-c1">clear</span>();</pre></div>
 
 <p><strong>del( key )</strong>
 <em>Promise</em></p>
 
 <p>Deletes the record.</p>
 
+<p>Example of deleting a record:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">rec</span>) {
+  <span class="pl-k">return</span> store.del(rec[<span class="pl-c1">0</span>]);
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-k">throw</span> e;
+}).then(<span class="pl-k">function</span> () {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack);
+});</pre></div>
+
 <p><strong>entries()</strong>
 <em>MapIterator</em></p>
 
 <p>Returns returns a new <code>Iterator</code> object that contains an array of <code>[key, value]</code> for each element in the <code>Map</code> object in insertion order.</p>
+
+<p>Example of deleting a record:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+store.entries().forEach(<span class="pl-k">function</span> (<span class="pl-smi">key</span>, <span class="pl-smi">value</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(key, <span class="pl-s"><span class="pl-pds">'</span>:<span class="pl-pds">'</span></span>, <span class="pl-c1">JSON</span>.stringify(value);
+});</pre></div>
 
 <p><strong>filter( callbackFn )</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for records which returned <code>true</code> to <code>callbackFn(value, key)</code>.</p>
 
+<p>Example of filtering a DataStore:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+store.filter(<span class="pl-k">function</span> (<span class="pl-smi">value</span>) {
+  <span class="pl-k">return</span> value.something <span class="pl-k">===</span> <span class="pl-c1">true</span>;
+});</pre></div>
+
 <p><strong>find( where )</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with found by indexed values matching the <code>where</code>.</p>
+
+<p>Example of finding a record(s) with an identity match:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>field1<span class="pl-pds">'</span></span>]});
+
+<span class="pl-c">// Data is added</span>
+
+store.<span class="pl-c1">find</span>({field1<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>some value<span class="pl-pds">'</span></span>});</pre></div>
 
 <p><strong>forEach( callbackFn[, thisArg] )</strong>
 <em>Undefined</em></p>
 
 <p>Calls <code>callbackFn</code> once for each key-value pair present in the <code>Map</code> object, in insertion order. If a <code>thisArg</code> parameter is provided to <code>forEach</code>, it will be used as the this value for each callback.</p>
 
+<p>Example of deleting a record:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">rec</span>) {
+  store.forEach(<span class="pl-k">function</span> (<span class="pl-smi">value</span>, <span class="pl-smi">key</span>) {
+    <span class="pl-en">console</span><span class="pl-c1">.log</span>(key);
+  });
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack);
+});</pre></div>
+
 <p><strong>get( key )</strong>
 <em>Tuple</em></p>
 
 <p>Gets the record as a double <code>Tuple</code> with the shape <code>[key, value]</code>.</p>
+
+<p>Example of getting a record with a known primary key value:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+store.get(<span class="pl-s"><span class="pl-pds">'</span>keyValue<span class="pl-pds">'</span></span>);</pre></div>
 
 <p><strong>keys()</strong>
 <em>MapIterator</em></p>
 
 <p>Returns a new <code>Iterator</code> object that contains the keys for each element in the <code>Map</code> object in insertion order.`</p>
 
+<p>Example of getting an iterator, and logging the results:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+store.keys().forEach(<span class="pl-k">function</span> (<span class="pl-smi">key</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(key);
+});</pre></div>
+
 <p><strong>limit( start, offset )</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for the corresponding range of records.</p>
+
+<p>Example of paginating a data set:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(), ds1, ds2;
+
+<span class="pl-c">// Data is added</span>
+
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// &gt;10</span>
+ds1 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>, <span class="pl-c1">0</span>);
+ds2 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>, <span class="pl-c1">10</span>);
+
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(ds1.<span class="pl-c1">length</span> <span class="pl-k">===</span> ds2.<span class="pl-c1">length</span>); <span class="pl-c">// true</span>
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-c1">JSON</span>.stringify(ds1[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>]) <span class="pl-k">===</span> <span class="pl-c1">JSON</span>.stringify(ds2[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>])); <span class="pl-c">// false</span></pre></div>
 
 <p><strong>map( callbackFn )</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records with the returned <code>value</code> of <code>callbackFn(value, key)</code>.</p>
 
+<p>Example of mapping a DataStore:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+store.map(<span class="pl-k">function</span> (<span class="pl-smi">key</span>, <span class="pl-smi">value</span>) {
+  <span class="pl-k">var</span> lobj <span class="pl-k">=</span> value;
+
+  lobj.somethingNew <span class="pl-k">=</span> <span class="pl-c1">true</span>;
+  <span class="pl-k">return</span> lobj;
+});</pre></div>
+
 <p><strong>reindex( [index] )</strong>
 <em>Haro</em></p>
 
 <p>Re-indexes the DataStore, to be called if changing the value of <code>index</code>.</p>
+
+<p>Example of mapping a DataStore:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+<span class="pl-c">// Data is added</span>
+
+<span class="pl-c">// Creating a late index</span>
+store.<span class="pl-c1">index</span>(<span class="pl-s"><span class="pl-pds">'</span>field3<span class="pl-pds">'</span></span>);
+
+<span class="pl-c">// Recreating indexes, this should only happen if the store is out of sync caused by developer code.</span>
+store.<span class="pl-c1">index</span>();</pre></div>
 
 <p><strong>request( input, config )</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for a <code>fetch()</code> with a double <code>Tuple</code> [<code>body</code>, <code>status</code>] as the <code>resolve()</code> argument.</p>
 
+<p>Example of mapping a DataStore:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+
+store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain.com/api<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">res</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(res); <span class="pl-c">// [body, status, headers]</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
 <p><strong>search( arg, index )</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records found matching <code>arg</code>.
-If <code>arg</code> is a <code>Function</code> a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> as <code>true</code>, else the value must be an equality match. </p>
+If <code>arg</code> is a <code>Function</code> a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> as <code>true</code>, else the value must be an equality match.</p>
+
+<p>Example of searching with a predicate function:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+   data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">search</span>(<span class="pl-k">function</span> (<span class="pl-smi">age</span>) {
+   <span class="pl-k">return</span> age <span class="pl-k">&lt;</span> <span class="pl-c1">30</span>;
+ }, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
 
 <p><strong>set( key, data, batch=false )</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for setting/amending a record in the DataStore, if <code>key</code> is <code>false</code> a version 4 <code>UUID</code> will be generated.</p>
 
+<p>Example of creating a record:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
+
+store.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-c1">1</span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">record</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(record); <span class="pl-c">// [1, {id: 1, name: 'Jane Doe'}]</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
 <p><strong>setUri( uri )</strong>
 <em>Promise</em></p>
 
-<p>Returns a <code>Promise</code> for wiring the DataStore to an API, with the retrieved record set as the <code>resolve()</code> argument.</p>
+<p>Returns a <code>Promise</code> for wiring the DataStore to an API, with the retrieved record set as the <code>resolve()</code> argument. This
+creates an implicit mapping of <code>$uri/{key}</code> for records.</p>
+
+<p>Example setting the URI of the DataStore:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
+
+store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.log</span>(records); <span class="pl-c">// [[$id, {...}], ...]</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
 
 <p><strong>sort( callbackFn )</strong>
 <em>Array</em></p>
 
 <p>Returns an Array of the DataStore, sorted by <code>callbackFn</code>.</p>
 
+<p>Example of sorting like an <code>Array</code>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+   data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">sort</span>(<span class="pl-k">function</span> (<span class="pl-smi">a</span>, <span class="pl-smi">b</span>) {
+   <span class="pl-k">return</span> a <span class="pl-k">&lt;</span> b <span class="pl-k">?</span> <span class="pl-k">-</span><span class="pl-c1">1</span> <span class="pl-k">:</span> (a <span class="pl-k">&gt;</span> b <span class="pl-k">?</span> <span class="pl-c1">1</span> <span class="pl-k">:</span> <span class="pl-c1">0</span>);
+ })); <span class="pl-c">// [{name: 'Jane Doe', age: 28}, {name: 'John Doe', age: 30}]</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
 <p><strong>sortBy( index )</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records sorted by an index.</p>
+
+<p>Example of sorting by an index:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+   data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.sortBy(<span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}], [$uuid, {name: 'John Doe', age: 30}]]</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
 
 <p><strong>toArray()</strong>
 <em>Array</em></p>
 
 <p>Returns an Array of the DataStore.</p>
 
+<p>Example of casting to an <code>Array</code>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(),
+   data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toArray()); <span class="pl-c">// [{name: 'John Doe', age: 30}, {name: 'Jane Doe', age: 28}]</span>
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
 <p><strong>values()</strong>
 <em>MapIterator</em></p>
 
 <p>Returns a new <code>Iterator</code> object that contains the values for each element in the <code>Map</code> object in insertion order.</p>
+
+<p>Example of iterating the values:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(),
+   data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+ store.values().forEach(<span class="pl-k">function</span> (<span class="pl-smi">value</span>, <span class="pl-smi">key</span>) {
+   <span class="pl-en">console</span><span class="pl-c1">.log</span>(key);
+ });
+}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+ <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
 
 <h3>
 <a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h3>
