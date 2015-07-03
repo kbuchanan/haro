@@ -189,6 +189,11 @@ Non-matches within composites result in blank values.</p>
 
 <p>Map of indexes, which are Sets containing Map keys.</p>
 
+<p><strong>patch</strong>
+<em>Boolean</em></p>
+
+<p>Set from the success handler of <code>sync()</code>, infers <code>PATCH</code> requests are supported by the API collection.</p>
+
 <p><strong>registry</strong>
 <em>Array</em></p>
 
@@ -202,7 +207,7 @@ Non-matches within composites result in blank values.</p>
 <p><strong>uri</strong>
 <em>String</em></p>
 
-<p>API collection URI the DataStore is wired to, in a feedback loop (do not modify, use <code>setUri()</code>). Setting the value creates an implicit relationship with records, e.g. setting <code>/users</code> would an implicit URI structure of <code>/users/{key}</code></p>
+<p>API collection URI the DataStore is wired to, in a feedback loop (do not modify, use <code>setUri()</code>). Setting the value creates an implicit relationship with records, e.g. setting <code>/users</code> would imply a URI structure of <code>/users/{key}</code>. Trailing slashes may be stripped.</p>
 
 <p><strong>versions</strong>
 <em>Map</em></p>
@@ -215,7 +220,10 @@ Non-matches within composites result in blank values.</p>
 <p><strong>batch( array, type )</strong>
 <em>Promise</em></p>
 
-<p>The first argument must be an <code>Array</code>, and the second argument must be <code>del</code> or <code>set</code>.</p>
+<p>The first argument must be an <code>Array</code>, and the second argument must be <code>del</code> or <code>set</code>. Batch operations with a DataStore 
+that is wired to an API with pagination enabled &amp; <code>PATCH</code> support may create erroneous operations, such as <code>add</code> where
+<code>replace</code> is appropriate; this will happen because the DataStore will not have the entire data set to generate it's 
+<a href="http://jsonpatchjs.com/">JSONPatch</a> request.</p>
 
 <div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> haro <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>),
     store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]}),
@@ -268,7 +276,8 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <p><strong>entries()</strong>
 <em>MapIterator</em></p>
 
-<p>Returns returns a new <code>Iterator</code> object that contains an array of <code>[key, value]</code> for each element in the <code>Map</code> object in insertion order.</p>
+<p>Returns returns a new <code>Iterator</code> object that contains an array of <code>[key, value]</code> for each element in the <code>Map</code> object in 
+insertion order.</p>
 
 <p>Example of deleting a record:</p>
 
@@ -288,7 +297,8 @@ item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 <p><strong>filter( callbackFn )</strong>
 <em>Tuple</em></p>
 
-<p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for records which returned <code>true</code> to <code>callbackFn(value, key)</code>.</p>
+<p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for records which returned <code>true</code> to 
+<code>callbackFn(value, key)</code>.</p>
 
 <p>Example of filtering a DataStore:</p>
 
@@ -316,7 +326,8 @@ store.<span class="pl-c1">find</span>({field1<span class="pl-k">:</span> <span c
 <p><strong>forEach( callbackFn[, thisArg] )</strong>
 <em>Undefined</em></p>
 
-<p>Calls <code>callbackFn</code> once for each key-value pair present in the <code>Map</code> object, in insertion order. If a <code>thisArg</code> parameter is provided to <code>forEach</code>, it will be used as the this value for each callback.</p>
+<p>Calls <code>callbackFn</code> once for each key-value pair present in the <code>Map</code> object, in insertion order. If a <code>thisArg</code> 
+parameter is provided to <code>forEach</code>, it will be used as the this value for each callback.</p>
 
 <p>Example of deleting a record:</p>
 
@@ -432,7 +443,8 @@ store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records found matching <code>arg</code>.
-If <code>arg</code> is a <code>Function</code> a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> as <code>true</code>, else the value must be an equality match.</p>
+If <code>arg</code> is a <code>Function</code> a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> 
+as <code>true</code>, else the value must be an equality match.</p>
 
 <p>Example of searching with a predicate function:</p>
 
@@ -450,7 +462,8 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 <p><strong>set( key, data, batch=false, override=false )</strong>
 <em>Promise</em></p>
 
-<p>Returns a <code>Promise</code> for setting/amending a record in the DataStore, if <code>key</code> is <code>false</code> a version 4 <code>UUID</code> will be generated.</p>
+<p>Returns a <code>Promise</code> for setting/amending a record in the DataStore, if <code>key</code> is <code>false</code> a version 4 <code>UUID</code> will be 
+generated.</p>
 
 <p>If <code>override</code> is <code>true</code>, the existing record will be replaced instead of amended.</p>
 
@@ -470,8 +483,12 @@ store.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span 
 <p>Returns a <code>Promise</code> for wiring the DataStore to an API, with the retrieved record set as the <code>resolve()</code> argument. This
 creates an implicit mapping of <code>$uri/{key}</code> for records.</p>
 
-<p>Pagination can be implemented by conditionally supplying <code>true</code> as the second argument. Doing so will <code>clear()</code> the DataStore
-prior to a batch insertion.</p>
+<p>Pagination can be implemented by conditionally supplying <code>true</code> as the second argument. Doing so will <code>clear()</code> the 
+DataStore prior to a batch insertion.</p>
+
+<p>If <code>PATCH</code> requests are supported by the collection <code>batch()</code>, <code>del()</code> &amp; <code>set()</code> will make <code>JSONPatch</code> requests. If a 
+<code>405</code> / <code>Method not Allowed</code> response occurs from a <code>PATCH</code> request, the DataStore will fallback to the appropriate 
+method &amp; disable <code>PATCH</code> for subsequent requests.</p>
 
 <p>Example setting the URI of the DataStore:</p>
 
@@ -568,6 +585,22 @@ interval <span class="pl-k">=</span> <span class="pl-c1">setInterval</span>(<spa
 
 store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toArray()); <span class="pl-c">// [{name: 'John Doe', age: 30}, {name: 'Jane Doe', age: 28}]</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});</pre></div>
+
+<p><strong>toObject()</strong>
+<em>Object</em></p>
+
+<p>Returns an Object of the DataStore.</p>
+
+<p>Example of casting to an <code>Object</code>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>guid<span class="pl-pds">'</span></span>}),
+   data <span class="pl-k">=</span> [{guid<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>abc<span class="pl-pds">'</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {guid<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>def<span class="pl-pds">'</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
+
+store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toObject()); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}, def: {guid: 'def', name: 'Jane Doe', age: 28}}</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
