@@ -427,14 +427,14 @@ store.<span class="pl-c1">index</span>();</pre></div>
 <p><strong>request( input, config )</strong>
 <em>Promise</em></p>
 
-<p>Returns a <code>Promise</code> for a <code>fetch()</code> with a double <code>Tuple</code> [<code>body</code>, <code>status</code>] as the <code>resolve()</code> argument.</p>
+<p>Returns a <code>Promise</code> for a <code>fetch()</code> with a triple <code>Tuple</code> [<code>body</code>, <code>status</code>, <code>headers</code>] as the <code>resolve()</code> &amp; <code>reject()</code> argument.</p>
 
 <p>Example of mapping a DataStore:</p>
 
 <div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
 
 store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain.com/api<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [body, status]</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [body, status, headers]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(arg[<span class="pl-c1">0</span>]);
 });</pre></div>
