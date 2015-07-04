@@ -125,6 +125,21 @@ testing time to 'search(regex, index)' for a record (first one is cold):
 <h3>
 <a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h3>
 
+<p><strong>adapters</strong>
+<em>Object</em></p>
+
+<p>Object of {(storage): (connection string)} pairs. Collection/table name is the value of <code>this.id</code>.</p>
+
+<p>Available adapters: <em>mongo</em></p>
+
+<p>Example of specifying MongoDB as persistent storage:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+  adapters<span class="pl-k">:</span> {
+    mongo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>mongo://localhost/mine<span class="pl-pds">"</span></span>
+  }
+});</pre></div>
+
 <p><strong>config</strong>
 <em>Object</em></p>
 
@@ -157,6 +172,11 @@ Non-matches within composites result in blank values.</p>
 <p>Example of specifying the primary key:</p>
 
 <div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>field<span class="pl-pds">'</span></span>});</pre></div>
+
+<p><strong>logging</strong>
+<em>Boolean</em></p>
+
+<p>Logs persistent storage messages to <code>console</code>, default is <code>true</code>.</p>
 
 <p><strong>source</strong>
 <em>String</em></p>
@@ -392,6 +412,11 @@ ds2 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>, <span
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(ds1.<span class="pl-c1">length</span> <span class="pl-k">===</span> ds2.<span class="pl-c1">length</span>); <span class="pl-c">// true</span>
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-c1">JSON</span>.stringify(ds1[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>]) <span class="pl-k">===</span> <span class="pl-c1">JSON</span>.stringify(ds2[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>])); <span class="pl-c">// false</span></pre></div>
 
+<p><strong>load( [adapter] )</strong>
+<em>Promise</em></p>
+
+<p>Loads the DataStore from persistent storage.</p>
+
 <p><strong>map( callbackFn )</strong>
 <em>Tuple</em></p>
 
@@ -424,6 +449,26 @@ store.<span class="pl-c1">index</span>(<span class="pl-s"><span class="pl-pds">'
 <span class="pl-c">// Recreating indexes, this should only happen if the store is out of sync caused by developer code.</span>
 store.<span class="pl-c1">index</span>();</pre></div>
 
+<p><strong>register( key, fn )</strong>
+<em>Haro</em></p>
+
+<p>Registers a persistent storage adapter.</p>
+
+<p>Example of registering an adapter:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> haro <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>),
+    store;
+
+<span class="pl-c">// Configure a store to utilize the adapter</span>
+store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+  adapters<span class="pl-k">:</span> {
+    mongo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>mongo://localhost/mydb<span class="pl-pds">"</span></span>
+  }
+});
+
+<span class="pl-c">// Register the adapter</span>
+store.register(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));</pre></div>
+
 <p><strong>request( input, config )</strong>
 <em>Promise</em></p>
 
@@ -438,6 +483,11 @@ store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(arg[<span class="pl-c1">0</span>]);
 });</pre></div>
+
+<p><strong>save( [adapter] )</strong>
+<em>Promise</em></p>
+
+<p>Saves the DataStore to persistent storage.</p>
 
 <p><strong>search( arg, index )</strong>
 <em>Tuple</em></p>
@@ -604,6 +654,29 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
+
+<p><strong>unregister( key )</strong>
+<em>Haro</em></p>
+
+<p>Un-registers a persistent storage adapter.</p>
+
+<p>Example of unregistering an adapter:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> haro <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>),
+    store;
+
+<span class="pl-c">// Register the adapter</span>
+haro.register(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));
+
+<span class="pl-c">// Configure a store to utilize the adapter</span>
+store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+  adapters<span class="pl-k">:</span> {
+    mongo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>mongo://localhost/mydb<span class="pl-pds">"</span></span>
+  }
+});
+
+<span class="pl-c">// Later...</span>
+store.unregister(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>);</pre></div>
 
 <p><strong>values()</strong>
 <em>MapIterator</em></p>
