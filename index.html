@@ -22,6 +22,8 @@
       <h1>
 <a id="haro" class="anchor" href="#haro" aria-hidden="true"><span class="octicon octicon-link"></span></a>haro</h1>
 
+<p><a href="https://gitter.im/avoidwork/haro?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/Join%20Chat.svg" alt="Join the chat at https://gitter.im/avoidwork/haro"></a></p>
+
 <p><a href="http://travis-ci.org/avoidwork/haro"><img src="https://secure.travis-ci.org/avoidwork/haro.svg" alt="build status"></a></p>
 
 <p>Harō is a modern immutable DataStore built with ES6 features, which can be wired to an API for a complete feedback loop.
@@ -29,19 +31,38 @@ It is un-opinionated, and offers a plug'n'play solution to modeling, searching, 
 (in RAM). It is a <a href="https://en.wikipedia.org/wiki/Persistent_data_structure">partially persistent data structure</a>, by maintaining version sets of records in <code>versions</code> (<a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">MVCC</a>).</p>
 
 <p>Synchronous commands return instantly (<code>Array</code> or <code>Tuple</code>), while asynchronous commands return  <code>Promises</code> which will
-resolve or reject in the future. This allows you to build complex applications without worrying about managing async code.</p>
+resolve or reject in the future. This allows you to build complex applications without worrying about managing async 
+code.</p>
 
-<p>Harō indexes have the following structure <code>Map (field/property) &gt; Map (value) &gt; Set (PKs)</code> which allow for quick &amp; easy searching, as well as inspection.
-Indexes can be managed independently of <code>del()</code> &amp; <code>set()</code> operations, for example you can lazily create new indexes via <code>reindex(field)</code>, or <code>sortBy(field)</code>.</p>
+<p>Harō indexes have the following structure <code>Map (field/property) &gt; Map (value) &gt; Set (PKs)</code> which allow for quick &amp; easy 
+searching, as well as inspection. Indexes can be managed independently of <code>del()</code> &amp; <code>set()</code> operations, for example you 
+can lazily create new indexes via <code>reindex(field)</code>, or <code>sortBy(field)</code>.</p>
 
 <h3>
 <a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use</h3>
 
-<p>Harō takes two optional arguments, the first is an <code>Array</code> of records to set asynchronously, &amp; the second is a configuration descriptor.</p>
+<p>Harō takes two optional arguments, the first is an <code>Array</code> of records to set asynchronously, &amp; the second is a 
+configuration descriptor.</p>
 
 <div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> storeDefaults <span class="pl-k">=</span> haro();
 <span class="pl-k">var</span> storeRecords <span class="pl-k">=</span> haro([{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}]);
 <span class="pl-k">var</span> storeCustom <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});</pre></div>
+
+<h3>
+<a id="persistent-storage" class="anchor" href="#persistent-storage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Persistent Storage</h3>
+
+<p>Harō is an in RAM only DataStore, so state could be lost if your program unexpectedly restarted, or some kind of 
+machine failure were to occur. To handle this serious problem, Harō affords a 1-n relationship with persistent storage 
+adapters. You can register one or many adapters, and data updates will asynchronously persist to the various long term 
+storage systems.</p>
+
+<p>DataStore records will be stored separate of the DataStore snapshot itself (if you decide to leverage it), meaning you 
+are responsible for doing a <code>load()</code> &amp; <code>save()</code> at startup &amp; shutdown. This is a manual process because it could be a 
+time bottleneck in the middle of using your application. Loading an individual record will update the DataStore with 
+value from persistent storage.</p>
+
+<p>DataStore snapshots &amp; individual records can be removed from persistent storage with <code>unload()</code>; it is not recommended 
+to do this for an individual record, and to instead rely on <code>del()</code>, but it's afforded because it may be required.</p>
 
 <h3>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
@@ -412,10 +433,11 @@ ds2 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>, <span
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(ds1.<span class="pl-c1">length</span> <span class="pl-k">===</span> ds2.<span class="pl-c1">length</span>); <span class="pl-c">// true</span>
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-c1">JSON</span>.stringify(ds1[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>]) <span class="pl-k">===</span> <span class="pl-c1">JSON</span>.stringify(ds2[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>])); <span class="pl-c">// false</span></pre></div>
 
-<p><strong>load( [adapter] )</strong>
+<p><strong>load( [adapter=mongo, key] )</strong>
 <em>Promise</em></p>
 
-<p>Loads the DataStore from persistent storage.</p>
+<p>Loads the DataStore, or a record from a specific persistent storage &amp; updates the DataStore. The DataStore will be cleared 
+prior to loading if <code>key</code> is omitted.</p>
 
 <p><strong>map( callbackFn )</strong>
 <em>Tuple</em></p>
@@ -655,10 +677,10 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>unload( [adapter] )</strong>
+<p><strong>unload( [adapter=mongo, key] )</strong>
 <em>Promise</em></p>
 
-<p>Unloads the DataStore from persistent storage (delete).</p>
+<p>Unloads the DataStore, or a record from a specific persistent storage (delete).</p>
 
 <p><strong>unregister( key )</strong>
 <em>Haro</em></p>
