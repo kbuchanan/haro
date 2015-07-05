@@ -64,6 +64,73 @@ value from persistent storage.</p>
 <p>DataStore snapshots &amp; individual records can be removed from persistent storage with <code>unload()</code>; it is not recommended 
 to do this for an individual record, and to instead rely on <code>del()</code>, but it's afforded because it may be required.</p>
 
+<h4>
+<a id="creating-an-adapter" class="anchor" href="#creating-an-adapter" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating an Adapter</h4>
+
+<p>Adapters are simple in nature (can be isomorphic), and pretty easy to create! Follow the template below, fill in the 
+gaps for your adapter as needed, such as handling multiple connection pools, etc.. The input parameters should not be 
+mutated. The return must be a <code>Promise</code>.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-s"><span class="pl-pds">"</span>use strict<span class="pl-pds">"</span></span>;
+
+<span class="pl-k">const</span> <span class="pl-c1">Promise</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">"</span>es6-promise<span class="pl-pds">"</span></span>).Promise;
+
+<span class="pl-k">function</span> <span class="pl-en">deferred</span> () {
+    <span class="pl-k">let</span> promise, resolver, rejecter;
+
+    promise <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Promise</span>(<span class="pl-k">function</span> (<span class="pl-smi">resolve</span>, <span class="pl-smi">reject</span>) {
+        resolver <span class="pl-k">=</span> resolve;
+        rejecter <span class="pl-k">=</span> reject;
+    });
+
+    <span class="pl-k">return</span> {resolve<span class="pl-k">:</span> resolver, reject<span class="pl-k">:</span> rejecter, promise<span class="pl-k">:</span> promise};
+}
+
+<span class="pl-k">function</span> <span class="pl-en">adapter</span> (<span class="pl-smi">store</span>, <span class="pl-smi">op</span>, <span class="pl-smi">key</span>, <span class="pl-smi">data</span>) {
+    <span class="pl-k">let</span> defer <span class="pl-k">=</span> deferred(),
+        record <span class="pl-k">=</span> key <span class="pl-k">!==</span> <span class="pl-c1">undefined</span>,
+        config <span class="pl-k">=</span> store.adapters.myAdapterName,
+        prefix <span class="pl-k">=</span> config.<span class="pl-c1">prefix</span> <span class="pl-k">||</span> store.<span class="pl-c1">id</span>,
+        lkey <span class="pl-k">=</span> prefix <span class="pl-k">+</span> (record <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">"</span>_<span class="pl-pds">"</span></span> <span class="pl-k">+</span> key <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)),
+        client <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Your driver instance<span class="pl-pds">"</span></span>;
+
+    <span class="pl-k">if</span> (op <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>get<span class="pl-pds">"</span></span>) {
+        client.get(lkey, <span class="pl-k">function</span> (<span class="pl-smi">e</span>, <span class="pl-smi">reply</span>) {
+            <span class="pl-k">let</span> result <span class="pl-k">=</span> <span class="pl-c1">JSON</span>.<span class="pl-c1">parse</span>(reply <span class="pl-k">||</span> <span class="pl-c1">null</span>);
+
+            <span class="pl-k">if</span> (e) {
+                defer.reject(e);
+            } <span class="pl-k">else</span> <span class="pl-k">if</span> (result) {
+                defer.resolve(result);
+            } <span class="pl-k">else</span> <span class="pl-k">if</span> (record) {
+                defer.reject(<span class="pl-k">new</span> <span class="pl-en">Error</span>(<span class="pl-s"><span class="pl-pds">"</span>Record not found in myAdapterName<span class="pl-pds">"</span></span>));
+            } <span class="pl-k">else</span> {
+                defer.reject([]);
+            }
+        });
+    } <span class="pl-k">else</span> <span class="pl-k">if</span> (op <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>remove<span class="pl-pds">"</span></span>) {
+        client.del(lkey, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+            <span class="pl-k">if</span> (e) {
+                defer.reject(e);
+            } <span class="pl-k">else</span> {
+                defer.resolve(<span class="pl-c1">true</span>);
+            }
+        });
+    } <span class="pl-k">else</span> <span class="pl-k">if</span> (op <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>set<span class="pl-pds">"</span></span>) {
+        client.set(lkey, <span class="pl-c1">JSON</span>.stringify(data), <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+            <span class="pl-k">if</span> (e) {
+                defer.reject(e);
+            } <span class="pl-k">else</span> {
+                defer.resolve(<span class="pl-c1">true</span>);
+            }
+        });
+    }
+
+    <span class="pl-k">return</span> defer.promise;
+}
+
+<span class="pl-c1">module</span>.exports <span class="pl-k">=</span> adapter;</pre></div>
+
 <h3>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
 
