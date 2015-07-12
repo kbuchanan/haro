@@ -712,10 +712,10 @@ interval <span class="pl-k">=</span> <span class="pl-c1">setInterval</span>(<spa
   store.sync();
 }, <span class="pl-c1">60000</span>);</pre></div>
 
-<p><strong>toArray()</strong>
+<p><strong>toArray( [data, freeze=true] )</strong>
 <em>Array</em></p>
 
-<p>Returns an Array of the DataStore.</p>
+<p>Returns an Array of the DataStore, or a subset.</p>
 
 <p>Example of casting to an <code>Array</code>:</p>
 
@@ -724,6 +724,7 @@ interval <span class="pl-k">=</span> <span class="pl-c1">setInterval</span>(<spa
 
 store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toArray()); <span class="pl-c">// [{name: 'John Doe', age: 30}, {name: 'Jane Doe', age: 28}]</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toArray(store.limit(<span class="pl-c1">1</span>))); <span class="pl-c">// [{name: 'John Doe', age: 30}]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
