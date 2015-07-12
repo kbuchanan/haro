@@ -729,7 +729,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>toObject()</strong>
+<p><strong>toObject( [data, freeze=true] )</strong>
 <em>Object</em></p>
 
 <p>Returns an Object of the DataStore.</p>
@@ -741,6 +741,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 
 store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toObject()); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}, def: {guid: 'def', name: 'Jane Doe', age: 28}}</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toObject(store.limit(<span class="pl-c1">1</span>)); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}}}</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
