@@ -582,8 +582,8 @@ store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records found matching <code>arg</code>.
-If <code>arg</code> is a <code>Function</code> a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> 
-as <code>true</code>, else the value must be an equality match. The <code>index</code> parameter can be a <code>String</code> or <code>Array</code> of <code>Strings</code>; 
+If <code>arg</code> is a <code>Function</code> (parameters are <code>value</code> &amp; <code>index</code>) a match is made if the result is <code>true</code>, if <code>arg</code> is a <code>RegExp</code> the field value must <code>.test()</code> 
+as <code>true</code>, else the value must be an identity match. The <code>index</code> parameter can be a <code>String</code> or <code>Array</code> of <code>Strings</code>; 
 if not supplied it defaults to <code>this.index</code>.</p>
 
 <p>Example of searching with a predicate function:</p>
