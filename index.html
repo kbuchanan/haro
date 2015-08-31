@@ -5,7 +5,7 @@
     <title>Haro by avoidwork</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
@@ -44,9 +44,9 @@ can lazily create new indexes via <code>reindex(field)</code>, or <code>sortBy(f
 <p>Harō takes two optional arguments, the first is an <code>Array</code> of records to set asynchronously, &amp; the second is a 
 configuration descriptor.</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> storeDefaults <span class="pl-k">=</span> haro();
-<span class="pl-k">var</span> storeRecords <span class="pl-k">=</span> haro([{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}]);
-<span class="pl-k">var</span> storeCustom <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> storeDefaults <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
+<span class="pl-k">var</span> storeRecords <span class="pl-k">=</span> <span class="pl-c1">haro</span>([{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}]);
+<span class="pl-k">var</span> storeCustom <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});</pre></div>
 
 <h3>
 <a id="persistent-storage" class="anchor" href="#persistent-storage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Persistent Storage</h3>
@@ -73,63 +73,52 @@ mutated. The return must be a <code>Promise</code>.</p>
 
 <div class="highlight highlight-javascript"><pre><span class="pl-s"><span class="pl-pds">"</span>use strict<span class="pl-pds">"</span></span>;
 
-<span class="pl-k">const</span> <span class="pl-c1">Promise</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">"</span>es6-promise<span class="pl-pds">"</span></span>).Promise;
-
-<span class="pl-k">function</span> <span class="pl-en">deferred</span> () {
-    <span class="pl-k">let</span> promise, resolver, rejecter;
-
-    promise <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">Promise</span>(<span class="pl-k">function</span> (<span class="pl-smi">resolve</span>, <span class="pl-smi">reject</span>) {
-        resolver <span class="pl-k">=</span> resolve;
-        rejecter <span class="pl-k">=</span> reject;
-    });
-
-    <span class="pl-k">return</span> {resolve<span class="pl-k">:</span> resolver, reject<span class="pl-k">:</span> rejecter, promise<span class="pl-k">:</span> promise};
-}
+<span class="pl-k">const</span> <span class="pl-c1">deferred</span> <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">"</span>tiny-defer<span class="pl-pds">"</span></span>);
 
 <span class="pl-k">function</span> <span class="pl-en">adapter</span> (<span class="pl-smi">store</span>, <span class="pl-smi">op</span>, <span class="pl-smi">key</span>, <span class="pl-smi">data</span>) {
-    <span class="pl-k">let</span> defer <span class="pl-k">=</span> deferred(),
+    <span class="pl-k">let</span> defer <span class="pl-k">=</span> <span class="pl-c1">deferred</span>(),
         record <span class="pl-k">=</span> key <span class="pl-k">!==</span> <span class="pl-c1">undefined</span>,
-        config <span class="pl-k">=</span> store.adapters.myAdapterName,
+        config <span class="pl-k">=</span> store.<span class="pl-c1">adapters</span>.<span class="pl-c1">myAdapterName</span>,
         prefix <span class="pl-k">=</span> config.<span class="pl-c1">prefix</span> <span class="pl-k">||</span> store.<span class="pl-c1">id</span>,
         lkey <span class="pl-k">=</span> prefix <span class="pl-k">+</span> (record <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">"</span>_<span class="pl-pds">"</span></span> <span class="pl-k">+</span> key <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>)),
         client <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Your driver instance<span class="pl-pds">"</span></span>;
 
     <span class="pl-k">if</span> (op <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>get<span class="pl-pds">"</span></span>) {
-        client.get(lkey, <span class="pl-k">function</span> (<span class="pl-smi">e</span>, <span class="pl-smi">reply</span>) {
+        client.<span class="pl-c1">get</span>(lkey, <span class="pl-k">function</span> (<span class="pl-smi">e</span>, <span class="pl-smi">reply</span>) {
             <span class="pl-k">let</span> result <span class="pl-k">=</span> <span class="pl-c1">JSON</span>.<span class="pl-c1">parse</span>(reply <span class="pl-k">||</span> <span class="pl-c1">null</span>);
 
             <span class="pl-k">if</span> (e) {
-                defer.reject(e);
+                defer.<span class="pl-c1">reject</span>(e);
             } <span class="pl-k">else</span> <span class="pl-k">if</span> (result) {
-                defer.resolve(result);
+                defer.<span class="pl-c1">resolve</span>(result);
             } <span class="pl-k">else</span> <span class="pl-k">if</span> (record) {
-                defer.reject(<span class="pl-k">new</span> <span class="pl-en">Error</span>(<span class="pl-s"><span class="pl-pds">"</span>Record not found in myAdapterName<span class="pl-pds">"</span></span>));
+                defer.<span class="pl-c1">reject</span>(<span class="pl-k">new</span> <span class="pl-en">Error</span>(<span class="pl-s"><span class="pl-pds">"</span>Record not found in myAdapterName<span class="pl-pds">"</span></span>));
             } <span class="pl-k">else</span> {
-                defer.reject([]);
+                defer.<span class="pl-c1">reject</span>([]);
             }
         });
     } <span class="pl-k">else</span> <span class="pl-k">if</span> (op <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>remove<span class="pl-pds">"</span></span>) {
-        client.del(lkey, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+        client.<span class="pl-c1">del</span>(lkey, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
             <span class="pl-k">if</span> (e) {
-                defer.reject(e);
+                defer.<span class="pl-c1">reject</span>(e);
             } <span class="pl-k">else</span> {
-                defer.resolve(<span class="pl-c1">true</span>);
+                defer.<span class="pl-c1">resolve</span>(<span class="pl-c1">true</span>);
             }
         });
     } <span class="pl-k">else</span> <span class="pl-k">if</span> (op <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">"</span>set<span class="pl-pds">"</span></span>) {
-        client.set(lkey, <span class="pl-c1">JSON</span>.stringify(record <span class="pl-k">?</span> data <span class="pl-k">:</span> store.toArray()), <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+        client.<span class="pl-c1">set</span>(lkey, <span class="pl-c1">JSON</span>.<span class="pl-c1">stringify</span>(record <span class="pl-k">?</span> data <span class="pl-k">:</span> store.<span class="pl-c1">toArray</span>()), <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
             <span class="pl-k">if</span> (e) {
-                defer.reject(e);
+                defer.<span class="pl-c1">reject</span>(e);
             } <span class="pl-k">else</span> {
-                defer.resolve(<span class="pl-c1">true</span>);
+                defer.<span class="pl-c1">resolve</span>(<span class="pl-c1">true</span>);
             }
         });
     }
 
-    <span class="pl-k">return</span> defer.promise;
+    <span class="pl-k">return</span> defer.<span class="pl-c1">promise</span>;
 }
 
-<span class="pl-c1">module</span>.exports <span class="pl-k">=</span> adapter;</pre></div>
+<span class="pl-c1">module</span>.<span class="pl-c1">exports</span> <span class="pl-k">=</span> adapter;</pre></div>
 
 <h3>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
@@ -137,53 +126,53 @@ mutated. The return must be a <code>Promise</code>.</p>
 <h4>
 <a id="piping-promises" class="anchor" href="#piping-promises" aria-hidden="true"><span class="octicon octicon-link"></span></a>Piping Promises</h4>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
-<span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0</span>
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">total</span>); <span class="pl-c">// 0</span>
 
-store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+store.<span class="pl-c1">set</span>(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [$uuid, {abc: true}];</span>
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 1</span>
-  <span class="pl-k">return</span> store.set(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">false</span>});
-}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">total</span>); <span class="pl-c">// 1</span>
+  <span class="pl-k">return</span> store.<span class="pl-c1">set</span>(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">false</span>});
+}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [$uuid, {abc: false}];</span>
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.versions.get(arg[<span class="pl-c1">0</span>]).<span class="pl-c1">size</span>); <span class="pl-c">// 1;</span>
-  <span class="pl-k">return</span> store.del(arg[<span class="pl-c1">0</span>])
-}).then(<span class="pl-k">function</span> () {
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0;</span>
-}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">versions</span>.<span class="pl-c1">get</span>(arg[<span class="pl-c1">0</span>]).<span class="pl-c1">size</span>); <span class="pl-c">// 1;</span>
+  <span class="pl-k">return</span> store.<span class="pl-c1">del</span>(arg[<span class="pl-c1">0</span>])
+}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> () {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">total</span>); <span class="pl-c">// 0;</span>
+}).<span class="pl-c1">catch</span>(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <h4>
 <a id="indexes--searching" class="anchor" href="#indexes--searching" aria-hidden="true"><span class="octicon octicon-link"></span></a>Indexes &amp; Searching</h4>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
     data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(records[<span class="pl-c1">0</span>]); <span class="pl-c">// [$uuid, {name: 'John Doe', age: 30}]</span>
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 2</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">total</span>); <span class="pl-c">// 2</span>
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">find</span>({age<span class="pl-k">:</span> <span class="pl-c1">28</span>})); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">search</span>(<span class="pl-sr"><span class="pl-pds">/</span><span class="pl-k">^</span>ja<span class="pl-pds">/</span>i</span>, <span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">search</span>(<span class="pl-k">function</span> (<span class="pl-smi">age</span>) { <span class="pl-k">return</span> age <span class="pl-k">&lt;</span> <span class="pl-c1">30</span>; }, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
-}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+}).<span class="pl-c1">catch</span>(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <h4>
 <a id="mvcc-versioning" class="anchor" href="#mvcc-versioning" aria-hidden="true"><span class="octicon octicon-link"></span></a>MVCC versioning</h4>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
-store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
-  <span class="pl-k">return</span> store.set(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">false</span>});
-}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
-  <span class="pl-k">return</span> store.set(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>});
-}).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
-  store.versions.get(arg[<span class="pl-c1">0</span>]).forEach(<span class="pl-k">function</span> (<span class="pl-smi">i</span>) { <span class="pl-en">console</span><span class="pl-c1">.log</span>(i[<span class="pl-c1">0</span>]); }); <span class="pl-c">// {abc: true}, {abc: false}</span>
-}).catch(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+store.<span class="pl-c1">set</span>(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-k">return</span> store.<span class="pl-c1">set</span>(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">false</span>});
+}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  <span class="pl-k">return</span> store.<span class="pl-c1">set</span>(arg[<span class="pl-c1">0</span>], {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>});
+}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+  store.<span class="pl-c1">versions</span>.<span class="pl-c1">get</span>(arg[<span class="pl-c1">0</span>]).<span class="pl-c1">forEach</span>(<span class="pl-k">function</span> (<span class="pl-smi">i</span>) { <span class="pl-en">console</span><span class="pl-c1">.log</span>(i[<span class="pl-c1">0</span>]); }); <span class="pl-c">// {abc: true}, {abc: false}</span>
+}).<span class="pl-c1">catch</span>(<span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <h3>
@@ -193,21 +182,21 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 Please consider that <code>batch()</code>, &amp; <code>set()</code> use <code>Promises</code> and incur time as a cost. The following results are from an Apple
 MacBook Air (Early 2014) / 8GB RAM / 512GB SSD / OS X Yosemite:</p>
 
-<pre><code>time to load data: 595.13794ms
+<pre><code>time to load data: 523.421068ms
 datastore record count: 15000
 name indexes: 15000
 testing time to 'find()' a record (first one is cold):
-0.333202ms
-0.15953ms
-0.091702ms
-0.091607ms
-0.077321ms
+0.31272ms
+0.123786ms
+0.051086ms
+0.053974ms
+0.045515ms
 testing time to 'search(regex, index)' for a record (first one is cold):
-2.22693ms
-1.339148ms
-1.59494ms
-1.28051ms
-1.191318ms
+2.676046ms
+1.760155ms
+2.087627ms
+1.558766ms
+1.568192ms
 </code></pre>
 
 <h3>
@@ -222,7 +211,7 @@ testing time to 'search(regex, index)' for a record (first one is cold):
 
 <p>Example of specifying MongoDB as persistent storage:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {
   adapters<span class="pl-k">:</span> {
     mongo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>mongo://localhost/mine<span class="pl-pds">"</span></span>
   }
@@ -235,7 +224,7 @@ testing time to 'search(regex, index)' for a record (first one is cold):
 
 <p>Example of specifying a bearer token authorization header:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {
   config<span class="pl-k">:</span> {
     headers<span class="pl-k">:</span> {
       authorization<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Bearer abcdef<span class="pl-pds">'</span></span>
@@ -250,7 +239,7 @@ Non-matches within composites result in blank values.</p>
 
 <p>Example of fields/properties to index:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>field1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>field2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>field1|field2|field3<span class="pl-pds">'</span></span>]);</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>field1<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>field2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>field1|field2|field3<span class="pl-pds">'</span></span>]);</pre></div>
 
 <p><strong>key</strong>
 <em>String</em></p>
@@ -259,7 +248,7 @@ Non-matches within composites result in blank values.</p>
 
 <p>Example of specifying the primary key:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>field<span class="pl-pds">'</span></span>});</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>field<span class="pl-pds">'</span></span>});</pre></div>
 
 <p><strong>logging</strong>
 <em>Boolean</em></p>
@@ -273,7 +262,7 @@ Non-matches within composites result in blank values.</p>
 
 <p>Example of specifying the source of data:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {source<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>data<span class="pl-pds">'</span></span>});</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {source<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>data<span class="pl-pds">'</span></span>});</pre></div>
 
 <p><strong>versioning</strong>
 <em>Boolean</em></p>
@@ -282,7 +271,7 @@ Non-matches within composites result in blank values.</p>
 
 <p>Example of disabling versioning:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {versioning<span class="pl-k">:</span> <span class="pl-c1">false</span>});</pre></div>
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {versioning<span class="pl-k">:</span> <span class="pl-c1">false</span>});</pre></div>
 
 <h3>
 <a id="properties" class="anchor" href="#properties" aria-hidden="true"><span class="octicon octicon-link"></span></a>Properties</h3>
@@ -334,7 +323,7 @@ that is wired to an API with pagination enabled &amp; <code>PATCH</code> support
 <a href="http://jsonpatchjs.com/">JSONPatch</a> request.</p>
 
 <div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> haro <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>),
-    store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]}),
+    store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]}),
     i <span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-c1">1</span>,
     nth <span class="pl-k">=</span> <span class="pl-c1">100</span>,
     data <span class="pl-k">=</span> [];
@@ -343,10 +332,10 @@ that is wired to an API with pagination enabled &amp; <code>PATCH</code> support
   data.<span class="pl-c1">push</span>({id<span class="pl-k">:</span> i, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span> <span class="pl-k">+</span> i});
 }
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span>(<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span>(<span class="pl-smi">records</span>) {
   <span class="pl-c">// records is a Tuple of Tuples</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span>);
 });</pre></div>
 
 <p><strong>clear()</strong>
@@ -356,7 +345,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 
 <p>Example of clearing a DataStore:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
 <span class="pl-c">// Data is added</span>
 
@@ -369,16 +358,16 @@ store.<span class="pl-c1">clear</span>();</pre></div>
 
 <p>Example of deleting a record:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
-store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">rec</span>) {
-  <span class="pl-k">return</span> store.del(rec[<span class="pl-c1">0</span>]);
+store.<span class="pl-c1">set</span>(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">rec</span>) {
+  <span class="pl-k">return</span> store.<span class="pl-c1">del</span>(rec[<span class="pl-c1">0</span>]);
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
   <span class="pl-k">throw</span> e;
-}).then(<span class="pl-k">function</span> () {
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// 0</span>
+}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> () {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">total</span>); <span class="pl-c">// 0</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span>);
 });</pre></div>
 
 <p><strong>entries()</strong>
@@ -389,18 +378,18 @@ insertion order.</p>
 
 <p>Example of deleting a record:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(),
     item, iterator;
 
 <span class="pl-c">// Data is added</span>
 
-iterator <span class="pl-k">=</span> store.entries();
+iterator <span class="pl-k">=</span> store.<span class="pl-c1">entries</span>();
 item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 
 <span class="pl-k">do</span> {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(item.<span class="pl-c1">value</span>);
   item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
-} <span class="pl-k">while</span> (<span class="pl-k">!</span>item.done);</pre></div>
+} <span class="pl-k">while</span> (<span class="pl-k">!</span>item.<span class="pl-c1">done</span>);</pre></div>
 
 <p><strong>filter( callbackFn )</strong>
 <em>Tuple</em></p>
@@ -410,12 +399,12 @@ item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 
 <p>Example of filtering a DataStore:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
 <span class="pl-c">// Data is added</span>
 
-store.filter(<span class="pl-k">function</span> (<span class="pl-smi">value</span>) {
-  <span class="pl-k">return</span> value.something <span class="pl-k">===</span> <span class="pl-c1">true</span>;
+store.<span class="pl-c1">filter</span>(<span class="pl-k">function</span> (<span class="pl-smi">value</span>) {
+  <span class="pl-k">return</span> value.<span class="pl-c1">something</span> <span class="pl-k">===</span> <span class="pl-c1">true</span>;
 });</pre></div>
 
 <p><strong>find( where )</strong>
@@ -425,7 +414,7 @@ store.filter(<span class="pl-k">function</span> (<span class="pl-smi">value</spa
 
 <p>Example of finding a record(s) with an identity match:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>field1<span class="pl-pds">'</span></span>]});
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>field1<span class="pl-pds">'</span></span>]});
 
 <span class="pl-c">// Data is added</span>
 
@@ -439,14 +428,14 @@ parameter is provided to <code>forEach</code>, it will be used as the this value
 
 <p>Example of deleting a record:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
-store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">rec</span>) {
-  store.forEach(<span class="pl-k">function</span> (<span class="pl-smi">value</span>, <span class="pl-smi">key</span>) {
+store.<span class="pl-c1">set</span>(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span class="pl-c1">true</span>}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">rec</span>) {
+  store.<span class="pl-c1">forEach</span>(<span class="pl-k">function</span> (<span class="pl-smi">value</span>, <span class="pl-smi">key</span>) {
     <span class="pl-en">console</span><span class="pl-c1">.log</span>(key);
   });
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span>);
 });</pre></div>
 
 <p><strong>get( key )</strong>
@@ -456,11 +445,11 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 
 <p>Example of getting a record with a known primary key value:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
 <span class="pl-c">// Data is added</span>
 
-store.get(<span class="pl-s"><span class="pl-pds">'</span>keyValue<span class="pl-pds">'</span></span>);</pre></div>
+store.<span class="pl-c1">get</span>(<span class="pl-s"><span class="pl-pds">'</span>keyValue<span class="pl-pds">'</span></span>);</pre></div>
 
 <p><strong>keys()</strong>
 <em>MapIterator</em></p>
@@ -469,18 +458,18 @@ store.get(<span class="pl-s"><span class="pl-pds">'</span>keyValue<span class="p
 
 <p>Example of getting an iterator, and logging the results:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(),
     item, iterator;
 
 <span class="pl-c">// Data is added</span>
 
-iterator <span class="pl-k">=</span> store.keys();
+iterator <span class="pl-k">=</span> store.<span class="pl-c1">keys</span>();
 item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 
 <span class="pl-k">do</span> {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(item.<span class="pl-c1">value</span>);
   item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
-} <span class="pl-k">while</span> (<span class="pl-k">!</span>item.done);</pre></div>
+} <span class="pl-k">while</span> (<span class="pl-k">!</span>item.<span class="pl-c1">done</span>);</pre></div>
 
 <p><strong>limit( max, offset=0 )</strong>
 <em>Tuple</em></p>
@@ -489,16 +478,16 @@ item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 
 <p>Example of paginating a data set:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(), ds1, ds2;
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(), ds1, ds2;
 
 <span class="pl-c">// Data is added</span>
 
-<span class="pl-en">console</span><span class="pl-c1">.log</span>(store.total); <span class="pl-c">// &gt;10</span>
-ds1 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>);     <span class="pl-c">// [0-9]</span>
-ds2 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>, <span class="pl-c1">10</span>); <span class="pl-c">// [10-19]</span>
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">total</span>); <span class="pl-c">// &gt;10</span>
+ds1 <span class="pl-k">=</span> store.<span class="pl-c1">limit</span>(<span class="pl-c1">10</span>);     <span class="pl-c">// [0-9]</span>
+ds2 <span class="pl-k">=</span> store.<span class="pl-c1">limit</span>(<span class="pl-c1">10</span>, <span class="pl-c1">10</span>); <span class="pl-c">// [10-19]</span>
 
 <span class="pl-en">console</span><span class="pl-c1">.log</span>(ds1.<span class="pl-c1">length</span> <span class="pl-k">===</span> ds2.<span class="pl-c1">length</span>); <span class="pl-c">// true</span>
-<span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-c1">JSON</span>.stringify(ds1[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>]) <span class="pl-k">===</span> <span class="pl-c1">JSON</span>.stringify(ds2[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>])); <span class="pl-c">// false</span></pre></div>
+<span class="pl-en">console</span><span class="pl-c1">.log</span>(<span class="pl-c1">JSON</span>.<span class="pl-c1">stringify</span>(ds1[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>]) <span class="pl-k">===</span> <span class="pl-c1">JSON</span>.<span class="pl-c1">stringify</span>(ds2[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>])); <span class="pl-c">// false</span></pre></div>
 
 <p><strong>load( [adapter=mongo, key] )</strong>
 <em>Promise</em></p>
@@ -513,12 +502,12 @@ prior to loading if <code>key</code> is omitted.</p>
 
 <p>Example of mapping a DataStore:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
 <span class="pl-c">// Data is added</span>
 
-store.map(<span class="pl-k">function</span> (<span class="pl-smi">value</span>) {
-  <span class="pl-k">return</span> value.property;
+store.<span class="pl-c1">map</span>(<span class="pl-k">function</span> (<span class="pl-smi">value</span>) {
+  <span class="pl-k">return</span> value.<span class="pl-c1">property</span>;
 });</pre></div>
 
 <p><strong>reindex( [index] )</strong>
@@ -528,7 +517,7 @@ store.map(<span class="pl-k">function</span> (<span class="pl-smi">value</span>)
 
 <p>Example of mapping a DataStore:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
 <span class="pl-c">// Data is added</span>
 
@@ -549,14 +538,14 @@ store.<span class="pl-c1">index</span>();</pre></div>
     store;
 
 <span class="pl-c">// Configure a store to utilize the adapter</span>
-store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {
   adapters<span class="pl-k">:</span> {
     mongo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>mongo://localhost/mydb<span class="pl-pds">"</span></span>
   }
 });
 
 <span class="pl-c">// Register the adapter</span>
-store.register(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));</pre></div>
+store.<span class="pl-c1">register</span>(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));</pre></div>
 
 <p><strong>request( input, config )</strong>
 <em>Promise</em></p>
@@ -565,9 +554,9 @@ store.register(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class=
 
 <p>Example of mapping a DataStore:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro();
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>();
 
-store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain.com/api<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
+store.<span class="pl-c1">request</span>(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain.com/api<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg); <span class="pl-c">// [body, status, headers]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(arg[<span class="pl-c1">0</span>]);
@@ -588,15 +577,15 @@ if not supplied it defaults to <code>this.index</code>.</p>
 
 <p>Example of searching with a predicate function:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
    data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">search</span>(<span class="pl-k">function</span> (<span class="pl-smi">age</span>) {
    <span class="pl-k">return</span> age <span class="pl-k">&lt;</span> <span class="pl-c1">30</span>;
  }, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}]]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <p><strong>set( key, data, batch=false, override=false )</strong>
@@ -609,12 +598,12 @@ generated.</p>
 
 <p>Example of creating a record:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
 
-store.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-c1">1</span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>}).then(<span class="pl-k">function</span> (<span class="pl-smi">record</span>) {
+store.<span class="pl-c1">set</span>(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-c1">1</span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>}).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">record</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(record); <span class="pl-c">// [1, {id: 1, name: 'Jane Doe'}]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <p><strong>setUri( uri, clear=false )</strong>
@@ -632,9 +621,9 @@ method &amp; disable <code>PATCH</code> for subsequent requests.</p>
 
 <p>Example setting the URI of the DataStore:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
 
-store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">setUri</span>(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(records); <span class="pl-c">// [[$id, {...}], ...]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(arg[<span class="pl-c1">0</span>]); <span class="pl-c">// [body, statusCode]</span>
@@ -642,37 +631,37 @@ store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedom
 
 <p>Example of pagination, by specifying <code>clear</code>:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>});
 
-store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com?page=1<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">setUri</span>(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com?page=1<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(records); <span class="pl-c">// [[$id, {...}], ...]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(arg[<span class="pl-c1">0</span>]); <span class="pl-c">// [body, statusCode]</span>
 });
 
 <span class="pl-c">// Later, based on user interaction, change the page</span>
-store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com?page=2<span class="pl-pds">'</span></span>, <span class="pl-c1">true</span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">setUri</span>(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com?page=2<span class="pl-pds">'</span></span>, <span class="pl-c1">true</span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(records); <span class="pl-c">// [[$id, {...}], ...]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(arg[<span class="pl-c1">0</span>]); <span class="pl-c">// [body, statusCode]</span>
 });</pre></div>
 
-<p><strong>sort( callbackFn )</strong>
+<p><strong>sort( callbackFn, [frozen = true] )</strong>
 <em>Array</em></p>
 
 <p>Returns an Array of the DataStore, sorted by <code>callbackFn</code>.</p>
 
 <p>Example of sorting like an <code>Array</code>:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
    data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">sort</span>(<span class="pl-k">function</span> (<span class="pl-smi">a</span>, <span class="pl-smi">b</span>) {
     <span class="pl-k">return</span> a <span class="pl-k">&lt;</span> b <span class="pl-k">?</span> <span class="pl-k">-</span><span class="pl-c1">1</span> <span class="pl-k">:</span> (a <span class="pl-k">&gt;</span> b <span class="pl-k">?</span> <span class="pl-c1">1</span> <span class="pl-k">:</span> <span class="pl-c1">0</span>);
   })); <span class="pl-c">// [{name: 'Jane Doe', age: 28}, {name: 'John Doe', age: 30}]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <p><strong>sortBy( index )</strong>
@@ -682,13 +671,13 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 
 <p>Example of sorting by an index:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]}),
    data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.sortBy(<span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}], [$uuid, {name: 'John Doe', age: 30}]]</span>
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">sortBy</span>(<span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>)); <span class="pl-c">// [[$uuid, {name: 'Jane Doe', age: 28}], [$uuid, {name: 'John Doe', age: 30}]]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <p><strong>sync( clear=false )</strong>
@@ -699,10 +688,10 @@ prior to <code>batch()</code> upon a successful retrieval of data.</p>
 
 <p>Example of sorting by an index:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>}),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>}),
     interval;
 
-store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+store.<span class="pl-c1">setUri</span>(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedomain.com<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.log</span>(records); <span class="pl-c">// [[$id, {...}], ...]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">arg</span>) {
   <span class="pl-en">console</span><span class="pl-c1">.error</span>(arg[<span class="pl-c1">0</span>]); <span class="pl-c">// [body, statusCode]</span>
@@ -710,7 +699,7 @@ store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedom
 
 <span class="pl-c">// Synchronizing the store every minute</span>
 interval <span class="pl-k">=</span> <span class="pl-c1">setInterval</span>(<span class="pl-k">function</span> () {
-  store.sync();
+  store.<span class="pl-c1">sync</span>();
 }, <span class="pl-c1">60000</span>);</pre></div>
 
 <p><strong>toArray( [data, freeze=true] )</strong>
@@ -720,14 +709,14 @@ interval <span class="pl-k">=</span> <span class="pl-c1">setInterval</span>(<spa
 
 <p>Example of casting to an <code>Array</code>:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(),
    data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toArray()); <span class="pl-c">// [{name: 'John Doe', age: 30}, {name: 'Jane Doe', age: 28}]</span>
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toArray(store.limit(<span class="pl-c1">1</span>))); <span class="pl-c">// [{name: 'John Doe', age: 30}]</span>
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">toArray</span>()); <span class="pl-c">// [{name: 'John Doe', age: 30}, {name: 'Jane Doe', age: 28}]</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">toArray</span>(store.<span class="pl-c1">limit</span>(<span class="pl-c1">1</span>))); <span class="pl-c">// [{name: 'John Doe', age: 30}]</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <p><strong>toObject( [data, freeze=true] )</strong>
@@ -737,14 +726,14 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 
 <p>Example of casting to an <code>Object</code>:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>guid<span class="pl-pds">'</span></span>}),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>guid<span class="pl-pds">'</span></span>}),
    data <span class="pl-k">=</span> [{guid<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>abc<span class="pl-pds">'</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {guid<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>def<span class="pl-pds">'</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toObject()); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}, def: {guid: 'def', name: 'Jane Doe', age: 28}}</span>
-  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.toObject(store.limit(<span class="pl-c1">1</span>)); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}}}</span>
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">toObject</span>()); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}, def: {guid: 'def', name: 'Jane Doe', age: 28}}</span>
+  <span class="pl-en">console</span><span class="pl-c1">.log</span>(store.<span class="pl-c1">toObject</span>(store.<span class="pl-c1">limit</span>(<span class="pl-c1">1</span>)); <span class="pl-c">// {abc: {guid: 'abc', name: 'John Doe', age: 30}}}</span>
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <p><strong>unload( [adapter=mongo, key] )</strong>
@@ -763,17 +752,17 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
     store;
 
 <span class="pl-c">// Register the adapter</span>
-haro.register(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));
+haro.<span class="pl-c1">register</span>(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));
 
 <span class="pl-c">// Configure a store to utilize the adapter</span>
-store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
+store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(<span class="pl-c1">null</span>, {
   adapters<span class="pl-k">:</span> {
     mongo<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>mongo://localhost/mydb<span class="pl-pds">"</span></span>
   }
 });
 
 <span class="pl-c">// Later...</span>
-store.unregister(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>);</pre></div>
+store.<span class="pl-c1">unregister</span>(<span class="pl-s"><span class="pl-pds">'</span>haro<span class="pl-pds">'</span></span>);</pre></div>
 
 <p><strong>values()</strong>
 <em>MapIterator</em></p>
@@ -782,19 +771,19 @@ store.unregister(<span class="pl-s"><span class="pl-pds">'</span>haro<span class
 
 <p>Example of iterating the values:</p>
 
-<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> haro(),
+<div class="highlight highlight-javascript"><pre><span class="pl-k">var</span> store <span class="pl-k">=</span> <span class="pl-c1">haro</span>(),
    data <span class="pl-k">=</span> [{name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>John Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">30</span>}, {name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>Jane Doe<span class="pl-pds">'</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">28</span>}];
 
-store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
-  <span class="pl-k">var</span> iterator <span class="pl-k">=</span> store.values(),
+store.<span class="pl-c1">batch</span>(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class="pl-pds">'</span></span>).<span class="pl-c1">then</span>(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-k">var</span> iterator <span class="pl-k">=</span> store.<span class="pl-c1">values</span>(),
       item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 
   <span class="pl-k">do</span> {
     <span class="pl-en">console</span><span class="pl-c1">.log</span>(item.<span class="pl-c1">value</span>);
     item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
-  } <span class="pl-k">while</span> (<span class="pl-k">!</span>item.done);
+  } <span class="pl-k">while</span> (<span class="pl-k">!</span>item.<span class="pl-c1">done</span>);
 }, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
-  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+  <span class="pl-en">console</span><span class="pl-c1">.error</span>(e.<span class="pl-c1">stack</span> <span class="pl-k">||</span> e.<span class="pl-c1">message</span> <span class="pl-k">||</span> e);
 });</pre></div>
 
 <h3>
@@ -805,6 +794,8 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 <li><code>Promise</code></li>
 <li><code>Set</code></li>
 <li><code>fetch()</code></li>
+<li>
+<code>deferred()</code> see <a href="https://github.com/avoidwork/tiny-defer">tiny-defer</a> for loading in a browser</li>
 <li>
 <code>tuple()</code> see <a href="https://github.com/avoidwork/tiny-tuple">tiny-tuple</a> for loading in a browser</li>
 </ul>
@@ -826,4 +817,3 @@ Licensed under the BSD-3 license</p>
   
   </body>
 </html>
-
