@@ -330,7 +330,7 @@ Non-matches within composites result in blank values.</p>
 <h3>
 <a id="api" class="anchor" href="#api" aria-hidden="true"><span class="octicon octicon-link"></span></a>API</h3>
 
-<p><strong>batch( array, type )</strong>
+<p><strong>batch(array, type)</strong>
 <em>Promise</em></p>
 
 <p>The first argument must be an <code>Array</code>, and the second argument must be <code>del</code> or <code>set</code>. Batch operations with a DataStore 
@@ -367,7 +367,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
 
 store.<span class="pl-c1">clear</span>();</pre></div>
 
-<p><strong>del( key )</strong>
+<p><strong>del(key)</strong>
 <em>Promise</em></p>
 
 <p>Deletes the record.</p>
@@ -386,7 +386,7 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack);
 });</pre></div>
 
-<p><strong>dump( type="records" )</strong>
+<p><strong>dump(type="records")</strong>
 <em>Array</em> or <em>Object</em></p>
 
 <p>Returns the records or indexes of the DataStore as mutable <code>Array</code> or <code>Object</code>, for the intention of reuse/persistent storage without relying on an adapter which would break up the data set.</p>
@@ -421,7 +421,7 @@ item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
   item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 } <span class="pl-k">while</span> (<span class="pl-k">!</span>item.done);</pre></div>
 
-<p><strong>filter( callbackFn )</strong>
+<p><strong>filter(callbackFn)</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for records which returned <code>true</code> to 
@@ -437,7 +437,7 @@ store.filter(<span class="pl-k">function</span> (<span class="pl-smi">value</spa
   <span class="pl-k">return</span> value.something <span class="pl-k">===</span> <span class="pl-c1">true</span>;
 });</pre></div>
 
-<p><strong>find( where )</strong>
+<p><strong>find(where)</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with found by indexed values matching the <code>where</code>.</p>
@@ -450,7 +450,7 @@ store.filter(<span class="pl-k">function</span> (<span class="pl-smi">value</spa
 
 store.<span class="pl-c1">find</span>({field1<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>some value<span class="pl-pds">'</span></span>});</pre></div>
 
-<p><strong>forEach( callbackFn[, thisArg] )</strong>
+<p><strong>forEach(callbackFn[, thisArg])</strong>
 <em>Undefined</em></p>
 
 <p>Calls <code>callbackFn</code> once for each key-value pair present in the <code>Map</code> object, in insertion order. If a <code>thisArg</code> 
@@ -468,7 +468,7 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack);
 });</pre></div>
 
-<p><strong>get( key )</strong>
+<p><strong>get(key)</strong>
 <em>Tuple</em></p>
 
 <p>Gets the record as a double <code>Tuple</code> with the shape <code>[key, value]</code>.</p>
@@ -480,6 +480,46 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 <span class="pl-c">// Data is added</span>
 
 store.get(<span class="pl-s"><span class="pl-pds">'</span>keyValue<span class="pl-pds">'</span></span>);</pre></div>
+
+<p><strong>join(other, on[, type="inner"])</strong>
+<em>Array</em></p>
+
+<p>Joins <code>this</code> instance of <code>Haro</code> with another, on a field/property. Supports "inner", "left", &amp; "right" joins. Resulting 
+composite records implement a <code>storeId_field</code> convention for fields/properties.</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> store1 <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>users<span class="pl-pds">'</span></span>, key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]});
+<span class="pl-k">var</span> store2 <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>values<span class="pl-pds">'</span></span>, key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>value<span class="pl-pds">'</span></span>]});
+
+<span class="pl-c">// Data is added to both stores</span>
+store1.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>abc<span class="pl-pds">"</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>jason<span class="pl-pds">"</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">35</span>});
+store1.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>def<span class="pl-pds">"</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>jen<span class="pl-pds">"</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">31</span>});
+
+<span class="pl-c">// Creating a related record in `store2`</span>
+store2.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>ghi<span class="pl-pds">'</span></span>, user<span class="pl-k">:</span> store1.limit(<span class="pl-c1">1</span>)[<span class="pl-c1">0</span>][<span class="pl-c1">0</span>], value<span class="pl-k">:</span> <span class="pl-c1">40</span>});
+
+<span class="pl-c">// Join results</span>
+store1.<span class="pl-c1">join</span>(store2, <span class="pl-s"><span class="pl-pds">"</span>user<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>inner<span class="pl-pds">"</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(records);
+  <span class="pl-c">// [{"users_id":"abc","users_name":"jason","users_age":35,"values_id":"ghi","values_user":"abc","values_value":40}]</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});
+
+store1.<span class="pl-c1">join</span>(store2, <span class="pl-s"><span class="pl-pds">"</span>user<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>left<span class="pl-pds">"</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(records);
+  <span class="pl-c">// [{"users_id":"abc","users_name":"jason","users_age":35,"values_id":"ghi","values_user":"abc","values_value":40},</span>
+  <span class="pl-c">//  {"users_id":"def","users_name":"jen","users_age":31,"values_id":null,"values_user":null,"values_value":null}]</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});
+
+store1.<span class="pl-c1">join</span>(store2, <span class="pl-s"><span class="pl-pds">"</span>user<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>right<span class="pl-pds">"</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(records);
+  <span class="pl-c">// [{"values_id":"ghi","values_user":"abc","values_value":40,"users_id":"abc","users_name":"jason","users_age":35}]</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});
+</pre></div>
 
 <p><strong>keys()</strong>
 <em>MapIterator</em></p>
@@ -501,7 +541,7 @@ item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
   item <span class="pl-k">=</span> iterator.<span class="pl-c1">next</span>();
 } <span class="pl-k">while</span> (<span class="pl-k">!</span>item.done);</pre></div>
 
-<p><strong>limit( max, offset=0 )</strong>
+<p><strong>limit(max, offset=0)</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> for the corresponding range of records.</p>
@@ -519,13 +559,13 @@ ds2 <span class="pl-k">=</span> store.limit(<span class="pl-c1">10</span>, <span
 <span class="pl-en">console</span>.<span class="pl-c1">log</span>(ds1.<span class="pl-c1">length</span> <span class="pl-k">===</span> ds2.<span class="pl-c1">length</span>); <span class="pl-c">// true</span>
 <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-c1">JSON</span>.stringify(ds1[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>]) <span class="pl-k">===</span> <span class="pl-c1">JSON</span>.stringify(ds2[<span class="pl-c1">0</span>][<span class="pl-c1">1</span>])); <span class="pl-c">// false</span></pre></div>
 
-<p><strong>load( [adapter="mongo", key] )</strong>
+<p><strong>load([adapter="mongo", key])</strong>
 <em>Promise</em></p>
 
 <p>Loads the DataStore, or a record from a specific persistent storage &amp; updates the DataStore. The DataStore will be cleared 
 prior to loading if <code>key</code> is omitted.</p>
 
-<p><strong>map( callbackFn )</strong>
+<p><strong>map(callbackFn)</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of the returns of <code>callbackFn(value, key)</code>.</p>
@@ -540,7 +580,7 @@ store.map(<span class="pl-k">function</span> (<span class="pl-smi">value</span>)
   <span class="pl-k">return</span> value.property;
 });</pre></div>
 
-<p><strong>offload( data[, cmd="index", index=this.index] )</strong>
+<p><strong>offload(data[, cmd="index", index=this.index])</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for an offloaded work load, such as preparing indexes in a <code>Worker</code>. This method is ideal for dealing 
@@ -558,7 +598,7 @@ store.offload(data).then(<span class="pl-k">function</span> (<span class="pl-smi
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e);
 });</pre></div>
 
-<p><strong>override( data[, type="records", fn] )</strong>
+<p><strong>override(data[, type="records", fn])</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for the new state. This is meant to be used in a paired override of the indexes &amp; records, such that
@@ -575,7 +615,7 @@ store.override({<span class="pl-s"><span class="pl-pds">'</span>field<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack);
 });</pre></div>
 
-<p><strong>reindex( [index] )</strong>
+<p><strong>reindex([index])</strong>
 <em>Haro</em></p>
 
 <p>Re-indexes the DataStore, to be called if changing the value of <code>index</code>.</p>
@@ -592,7 +632,7 @@ store.<span class="pl-c1">index</span>(<span class="pl-s"><span class="pl-pds">'
 <span class="pl-c">// Recreating indexes, this should only happen if the store is out of sync caused by developer code.</span>
 store.<span class="pl-c1">index</span>();</pre></div>
 
-<p><strong>register( key, fn )</strong>
+<p><strong>register(key, fn)</strong>
 <em>Haro</em></p>
 
 <p>Registers a persistent storage adapter.</p>
@@ -612,7 +652,7 @@ store <span class="pl-k">=</span> haro(<span class="pl-c1">null</span>, {
 <span class="pl-c">// Register the adapter</span>
 store.register(<span class="pl-s"><span class="pl-pds">'</span>mongo<span class="pl-pds">'</span></span>, <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>haro-mongo<span class="pl-pds">'</span></span>));</pre></div>
 
-<p><strong>request( input, config )</strong>
+<p><strong>request(input, config)</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for a <code>fetch()</code> with a triple <code>Tuple</code> [<code>body</code>, <code>status</code>, <code>headers</code>] as the <code>resolve()</code> &amp; <code>reject()</code> argument.</p>
@@ -627,12 +667,12 @@ store.request(<span class="pl-s"><span class="pl-pds">'</span>https://somedomain
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(arg[<span class="pl-c1">0</span>]);
 });</pre></div>
 
-<p><strong>save( [adapter] )</strong>
+<p><strong>save([adapter])</strong>
 <em>Promise</em></p>
 
 <p>Saves the DataStore to persistent storage.</p>
 
-<p><strong>search( arg[, index=this.index] )</strong>
+<p><strong>search(arg[, index=this.index])</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records found matching <code>arg</code>.
@@ -653,7 +693,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>set( key, data, batch=false, override=false )</strong>
+<p><strong>set(key, data, batch=false, override=false)</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for setting/amending a record in the DataStore, if <code>key</code> is <code>false</code> a version 4 <code>UUID</code> will be 
@@ -671,7 +711,7 @@ store.set(<span class="pl-c1">null</span>, {id<span class="pl-k">:</span> <span 
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>setUri( uri, clear=false )</strong>
+<p><strong>setUri(uri, clear=false)</strong>
 <em>Promise</em></p>
 
 <p>Returns a <code>Promise</code> for wiring the DataStore to an API, with the retrieved record set as the <code>resolve()</code> argument. This
@@ -711,7 +751,7 @@ store.setUri(<span class="pl-s"><span class="pl-pds">'</span>https://api.somedom
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(arg[<span class="pl-c1">0</span>]); <span class="pl-c">// [body, statusCode]</span>
 });</pre></div>
 
-<p><strong>sort( callbackFn, [frozen = true] )</strong>
+<p><strong>sort(callbackFn, [frozen = true])</strong>
 <em>Array</em></p>
 
 <p>Returns an Array of the DataStore, sorted by <code>callbackFn</code>.</p>
@@ -729,7 +769,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>sortBy( index )</strong>
+<p><strong>sortBy(index)</strong>
 <em>Tuple</em></p>
 
 <p>Returns a <code>Tuple</code> of double <code>Tuples</code> with the shape <code>[key, value]</code> of records sorted by an index.</p>
@@ -745,7 +785,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>sync( clear=false )</strong>
+<p><strong>sync(clear=false)</strong>
 <em>Promise</em></p>
 
 <p>Synchronises the DataStore with an API collection. If <code>clear</code> is <code>true</code>, the DataStore will have <code>clear()</code> executed
@@ -767,7 +807,7 @@ interval <span class="pl-k">=</span> <span class="pl-c1">setInterval</span>(<spa
   store.sync();
 }, <span class="pl-c1">60000</span>);</pre></div>
 
-<p><strong>toArray( [data, freeze=true] )</strong>
+<p><strong>toArray([data, freeze=true])</strong>
 <em>Array</em></p>
 
 <p>Returns an Array of the DataStore, or a subset.</p>
@@ -784,7 +824,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>toObject( [data, freeze=true] )</strong>
+<p><strong>toObject([data, freeze=true])</strong>
 <em>Object</em></p>
 
 <p>Returns an Object of the DataStore.</p>
@@ -801,7 +841,7 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>transform( input[, fn] )</strong>
+<p><strong>transform(input[, fn])</strong>
 <em>Mixed</em></p>
 
 <p>Transforms <code>Map</code> to <code>Object</code>, <code>Object</code> to <code>Map</code>, <code>Set</code> to <code>Array</code>, &amp; <code>Array</code> to <code>Set</code>. Accepts an optional second parameter to perform the
@@ -819,12 +859,12 @@ store.batch(data, <span class="pl-s"><span class="pl-pds">'</span>set<span class
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });</pre></div>
 
-<p><strong>unload( [adapter=mongo, key] )</strong>
+<p><strong>unload([adapter=mongo, key])</strong>
 <em>Promise</em></p>
 
 <p>Unloads the DataStore, or a record from a specific persistent storage (delete).</p>
 
-<p><strong>unregister( key )</strong>
+<p><strong>unregister(key)</strong>
 <em>Haro</em></p>
 
 <p>Un-registers a persistent storage adapter.</p>
