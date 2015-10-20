@@ -271,6 +271,36 @@ Non-matches within composites result in blank values.</p>
 
 <p>Logs persistent storage messages to <code>console</code>, default is <code>true</code>.</p>
 
+<p><strong>onbatch</strong>
+<em>Function</em></p>
+
+<p>Event listener for a batch operation, receives two arguments ['type', <code>Tuple</code>].</p>
+
+<p><strong>onclear</strong>
+<em>Function</em></p>
+
+<p>Event listener for clearing the data store.</p>
+
+<p><strong>ondelete</strong>
+<em>Function</em></p>
+
+<p>Event listener for when a record is deleted, receives the record key.</p>
+
+<p><strong>onerror</strong>
+<em>Function</em></p>
+
+<p>Event listener for errors which occur during common operations, receives two arguments ['type', <code>Error</code>]</p>
+
+<p><strong>onset</strong>
+<em>Function</em></p>
+
+<p>Event listener for when a record is set, receives a <code>Tuple</code>.</p>
+
+<p><strong>onsync</strong>
+<em>Function</em></p>
+
+<p>Event listener for synchronizing with an API, receives a <code>Tuple</code> of <code>Tuples</code>.</p>
+
 <p><strong>source</strong>
 <em>String</em></p>
 
