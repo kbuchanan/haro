@@ -511,11 +511,12 @@ store.set(<span class="pl-c1">null</span>, {abc<span class="pl-k">:</span> <span
 
 store.get(<span class="pl-s"><span class="pl-pds">'</span>keyValue<span class="pl-pds">'</span></span>);</pre></div>
 
-<p><strong>join(other, on[, type="inner"])</strong>
+<p><strong>join(other, on[, type="inner", where=[]])</strong>
 <em>Array</em></p>
 
-<p>Joins <code>this</code> instance of <code>Haro</code> with another, on a field/property. Supports "inner", "left", &amp; "right" joins. Resulting 
-composite records implement a <code>storeId_field</code> convention for fields/properties.</p>
+<p>Joins <code>this</code> instance of <code>Haro</code> with another, on a field/property. Supports "inner", "left", &amp; "right" JOINs. Resulting 
+composite records implement a <code>storeId_field</code> convention for fields/properties. The optional forth parameter is an Array 
+which can be used for WHERE clauses, similar to <code>find()</code>, <code>[store1, store2]</code>. </p>
 
 <div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> store1 <span class="pl-k">=</span> haro([{id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>abc<span class="pl-pds">"</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>jason<span class="pl-pds">"</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">35</span>}, {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>def<span class="pl-pds">"</span></span>, name<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>jen<span class="pl-pds">"</span></span>, age<span class="pl-k">:</span> <span class="pl-c1">31</span>}], {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>users<span class="pl-pds">'</span></span>, key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>age<span class="pl-pds">'</span></span>]});
 <span class="pl-k">var</span> store2 <span class="pl-k">=</span> haro([{id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>ghi<span class="pl-pds">'</span></span>, user<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>abc<span class="pl-pds">"</span></span>, value<span class="pl-k">:</span> <span class="pl-c1">40</span>}], {id<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>values<span class="pl-pds">'</span></span>, key<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>id<span class="pl-pds">'</span></span>, index<span class="pl-k">:</span> [<span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>value<span class="pl-pds">'</span></span>]});
