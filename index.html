@@ -529,6 +529,13 @@ store1.<span class="pl-c1">join</span>(store2, <span class="pl-s"><span class="p
   <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
 });
 
+store1.<span class="pl-c1">join</span>(store2, <span class="pl-s"><span class="pl-pds">"</span>user<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>inner<span class="pl-pds">"</span></span>, [{age<span class="pl-k">:</span> <span class="pl-c1">31</span>}]).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(records);
+  <span class="pl-c">// []</span>
+}, <span class="pl-k">function</span> (<span class="pl-smi">e</span>) {
+  <span class="pl-en">console</span>.<span class="pl-c1">error</span>(e.stack <span class="pl-k">||</span> e.message <span class="pl-k">||</span> e);
+});
+
 store1.<span class="pl-c1">join</span>(store2, <span class="pl-s"><span class="pl-pds">"</span>user<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>left<span class="pl-pds">"</span></span>).then(<span class="pl-k">function</span> (<span class="pl-smi">records</span>) {
   <span class="pl-en">console</span>.<span class="pl-c1">log</span>(records);
   <span class="pl-c">// [{"users_id":"abc","users_name":"jason","users_age":35,"values_id":"ghi","values_user":"abc","values_value":40},</span>
